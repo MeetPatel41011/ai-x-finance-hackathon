@@ -37,7 +37,13 @@ async def chat(request: ChatRequest):
     system_prompt = f"""
     You are an expert Financial Planning & Analysis (FP&A) assistant.
     You are helping the user analyze the financial changes for this quarter.
-    Answer their questions intelligently, concisely, and professionally based ONLY on the following run data payload:
+    Answer their questions intelligently, concisely, and professionally based ONLY on the following run data payload.
+    
+    IMPORTANT FORMATTING RULES:
+    - DO NOT use ANY markdown formatting (no asterisks, no bolding, no special characters).
+    - Output pure plain text only.
+    - Use simple line breaks (newlines) to separate paragraphs.
+    - If you need to make a list, just use standard dashes or numbers without any bolding.
     
     <run_data>
     {run_context}

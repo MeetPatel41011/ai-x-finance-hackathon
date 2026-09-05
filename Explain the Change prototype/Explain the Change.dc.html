@@ -400,7 +400,7 @@
   <sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
     <div style="maxWidth: 800px; margin: 0 auto; padding: 28px 24px 64px">
       <div style="fontSize: 22px; fontWeight: 600; letterSpacing: '-0.015em'; marginBottom: 20px">Chat with Data</div>
-      <div style="border: 1px solid #e2e2df; background: #fff; borderRadius: 4px; display: flex; flexDirection: column; height: 60vh">
+      <div style="border: 1px solid #e2e2df; background: #fff; borderRadius: 4px; display: flex; flexDirection: column; height: calc(100vh - 180px); minHeight: 400px;">
         <div style="flex: 1; overflowY: auto">
           <sc-for list="{{ chatHistory }}" as="msg" hint-placeholder-count="2">
             <div style="{{ msg.style }}">

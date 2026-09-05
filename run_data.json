@@ -1,28 +1,18 @@
 {
-  "cfo_brief": "Revenue fell $3.87B (-15.4%) sequentially, from $25.17B in Q4 2023 to $21.30B in Q1 2024, as confirmed in filings dated January 24 and April 23, 2024, respectively. A same-day Reuters report accompanying the 10-Q attributes the drop to aggressive ASP price cuts made to stimulate demand, framing this explicitly as a margin-compression story rather than a unit-volume collapse. The decline likely reflects a compounding effect of normal seasonal softness following the historically strong Q4 delivery push, layered with structural pricing erosion from the deliberate strategy to prioritize volume over per-unit revenue.",
+  "cfo_brief": "Revenue increased $4.0B sequentially, from $26.04B in Q1 2024 to $30.04B in Q2 2024 (+15.36%), per 10-Q filings dated 2024-05-22 and 2024-08-22, respectively. This magnitude exceeds typical quarter-over-quarter variance for a mega-cap revenue base and would normally trigger scrutiny for one-time items, M&A timing, or accounting changes\u2014however, unlike the subsequent Q2\u2192Q3 jump (later tied to disclosed \"unprecedented\" Blackwell chip demand), no MD&A commentary, earnings-call language, or news corroboration exists in the current evidence set to substantiate a specific driver for this Q1\u2192Q2 move. **Action item:** obtain the Q2 2024 earnings call transcript and MD&A section to confirm whether this increase reflects early Data Center/GPU momentum preceding the Blackwell ramp, or a distinct one-time factor requiring separate disclosure follow-up.",
   "variances": [
-    {
-      "ticker": "NORTHWIND SYS LLC",
-      "metric_name": "enterprise_revenue_qoq",
-      "delta": 0.321
-    },
     {
       "ticker": "NVDA",
       "metric_name": "revenue_qoq",
-      "delta": 0.178
-    },
-    {
-      "ticker": "TSLA",
-      "metric_name": "revenue_qoq",
-      "delta": -0.153
+      "delta": 0.153
     }
   ],
-  "net_variance": 0.346,
+  "net_variance": 0.153,
   "external_signal": {
-    "headline": "Price cuts pressure auto margin as TSLA attempts to spur demand.",
-    "source": "Reuters",
-    "date": "2024-04-23",
-    "theme": "margins",
+    "headline": "Tesla deliveries stabilize but margins remain suppressed.",
+    "source": "Bloomberg",
+    "date": "2024-07-23",
+    "theme": "deliveries",
     "entity": "TSLA"
   },
   "memory": {
@@ -32,6 +22,12 @@
         "flagged": 3,
         "false_positives": 2,
         "pct_explained": 80
+      },
+      {
+        "run": 2,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 90
       }
     ],
     "aliases": [
@@ -41,10 +37,23 @@
         "learned_run": 1
       }
     ],
-    "thresholds": [],
+    "thresholds": [
+      {
+        "account": "revenue_qoq",
+        "pct": 12,
+        "learned_run": 2
+      }
+    ],
     "corrections": [],
-    "owners": []
+    "owners": [
+      {
+        "account": "revenue",
+        "owner": "CFO Desk",
+        "title": "Finance Team",
+        "learned_run": 2
+      }
+    ]
   },
-  "run_id": 1,
-  "quarter": "2024Q1"
+  "run_id": 2,
+  "quarter": "2024Q2"
 }
