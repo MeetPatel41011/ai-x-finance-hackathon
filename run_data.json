@@ -1,5 +1,5 @@
 {
-  "cfo_brief": "Revenue rose from $30.04B in Q2 2024 to $32.54B in Q3 2024, a $2.5B (+8.32%) sequential increase, per SEC 10-Q filings. This jump exceeds normal enterprise/gaming growth patterns and coincides with a same-day CNBC report (Nov 22, 2024) citing \"unprecedented demand\" for Nvidia's Blackwell chips, suggesting management attributed the beat directly to next-gen Data Center GPU ramp rather than legacy Hopper/H100 sales. The exact-date alignment between the earnings filing and the Blackwell demand narrative indicates this was a disclosed, structural driver in the Q3 MD&A/earnings call\u2014not incidental press coverage.",
+  "cfo_brief": "Revenue grew $2.5B sequentially (+8.32% QoQ), from $30.04B in Q2 2024 to $32.54B in Q3 2024, per SEC 10-Q filings. The increase is attributed to Blackwell-generation GPU shipments entering the revenue base, evidenced by a same-day (Nov 22, 2024) CNBC report citing \"unprecedented demand\" for the new chips\u2014indicating supply-constrained pricing power rather than incremental Hopper/H100 growth. This magnitude and timing point to a discrete product-cycle transition event, not organic linear growth, with next-gen Data Center GPU ramp as the primary earnings driver disclosed alongside the filing.",
   "variances": [
     {
       "ticker": "NVDA",
@@ -52,6 +52,18 @@
         "flagged": 1,
         "false_positives": 0,
         "pct_explained": 100
+      },
+      {
+        "run": 7,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 100
+      },
+      {
+        "run": 8,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 100
       }
     ],
     "aliases": [
@@ -78,6 +90,6 @@
       }
     ]
   },
-  "run_id": 6,
+  "run_id": 8,
   "quarter": "2024Q3"
 }
