@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "lessons": [],
+  "skills": [],
+  "metrics": {
+    "totalTasks": 1,
+    "successfulTasks": 1,
+    "avgLoopsPerTask": 2,
+    "totalSkillsUsed": 0
+  }
+}

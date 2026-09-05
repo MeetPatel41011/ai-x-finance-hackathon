@@ -267,6 +267,7 @@
   <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
     <div style="maxWidth: 860px; margin: 0 auto; padding: 32px 24px 72px">
       <div data-print="hide" style="display: flex; gap: 8px; justifyContent: flex-end; marginBottom: 20px">
+        <button onClick="{{ playTTS }}" disabled="{{ ttsLoading }}" style="border: 1px solid #e2e2df; background: #fff; padding: 7px 13px; borderRadius: 3px; cursor: pointer">{{ ttsLabel }}</button>
         <button onClick="{{ exportCsv }}" style="border: 1px solid #e2e2df; background: #fff; padding: 7px 13px; borderRadius: 3px; cursor: pointer">Export CSV</button>
         <button onClick="{{ printReport }}" style="border: 1px solid #1a4fb4; background: #1a4fb4; color: #fff; padding: 7px 13px; borderRadius: 3px; cursor: pointer">Print report</button>
       </div>
@@ -532,7 +533,8 @@ class Component extends DCLogic {
     files: { actuals: true, projections: true, context: true },
     chatHistory: [{ role: "assistant", content: "Hello! I am your AI FP&A Assistant. I have full access to the current run data, including variances, memory, and the CFO brief. What would you like to know?" }],
     chatInput: "",
-    chatLoading: false
+    chatLoading: false,
+    ttsLoading: false
   };
 
   componentDidMount() {
@@ -640,6 +642,34 @@ class Component extends DCLogic {
          console.error(err);
          this.setState({ running: false, screen: "run" });
       });
+  }
+
+  playTTS() {
+    this.setState({ ttsLoading: true });
+    
+    // Construct the text to read
+    const textToRead = "Executive summary: " + this.state.data.summary.headline;
+    
+    fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: textToRead })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("TTS failed");
+      return res.blob();
+    })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+      this.setState({ ttsLoading: false });
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to generate audio.");
+      this.setState({ ttsLoading: false });
+    });
   }
 
   exportCsv() {
@@ -896,6 +926,9 @@ class Component extends DCLogic {
       aliasCount: m.aliases.length,
       exportCsv: () => this.exportCsv(),
       printReport: () => window.print(),
+      playTTS: () => this.playTTS(),
+      ttsLoading: s.ttsLoading,
+      ttsLabel: s.ttsLoading ? "Generating audio..." : "🔊 Read Aloud",
       rerun: () => this.runAnalysis(),
       runAnalysis: () => this.runAnalysis(),
       running: s.running, notRunning: !s.running,
