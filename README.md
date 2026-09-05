@@ -16,10 +16,12 @@ Crucially, it employs a **Circuit Breaker pattern** to mathematically verify LLM
 3. **Stateful Memory**: The system learns across runs. It remembers alias mappings (e.g., treating a subsidiary as the parent company) and materiality thresholds, cutting down on false positives in subsequent quarters.
 4. **Live Data Chatbot**: An interactive Claude-powered Chatbot is built directly into the UI, allowing stakeholders to chat with the real-time financial data.
 5. **Zero-Trust Data Sanitization**: Proprietary entity names (e.g., `TSLA`) are scrubbed and tokenized (e.g., `<CLIENT_001>`) before ever hitting the LLM API.
+6. **End-to-End Tracing (PRISM)**: Fully instrumented with the PRISM Trace SDK to provide complete observability of the multi-agent execution paths, LLM latency, token usage, and automated evaluations.
 
 ## Tech Stack
 - **Backend**: Python, FastAPI, Pandas
 - **AI / LLMs**: Anthropic Claude 3.5 Sonnet (via Hackathon API proxy), ChromaDB (for stateful memory vector embeddings)
+- **Observability**: PRISM Trace SDK
 - **Frontend**: HTML, CSS, JavaScript (React via CDN)
 
 ## How It Works
@@ -32,28 +34,31 @@ The pipeline orchestrates a flow of specialized tasks:
 
 ## How to run/use it
 
-1. **Install dependencies**:
+3. **Install dependencies**:
    ```bash
    python -m venv venv
    source venv/bin/activate
-   pip install fastapi uvicorn pandas anthropic chromadb
+   pip install fastapi uvicorn pandas anthropic chromadb "prismtrace-sdk>=0.4.0" python-dotenv requests
    ```
 
-2. **Configure API Keys**:
+4. **Configure API Keys**:
    Create a `.env` file in the root directory:
    ```env
-   ANTHROPIC_API_KEY=your_key_here
+   ANTHROPIC_API_KEY=your_anthropic_key_here
+   PRISMTRACE_API_KEY=your_prism_key_here
+   ELEVENLABS_API_KEY=your_elevenlabs_key_here
    ```
 
-3. **Start the Server**:
+5. **Start the Server**:
    ```bash
    uvicorn app:app --port 8000
    ```
 
-4. **Open the Dashboard**:
+6. **Open the Dashboard**:
    Open `http://127.0.0.1:8000/` in your browser.
-   - Click the **"Run view"** button to execute the multi-agent pipeline on the current quarter's data.
+   - Click the **"Run Autonomous Zero-Trust CFO Brief"** button to execute the multi-agent pipeline on the current quarter's data.
    - Click the **"Chatbot"** button to ask follow-up questions about the variance analysis.
+   - Click the **"Read Aloud 🔊"** button in the Report view to hear the AI narrate the findings.
 
 ## Any other information
 This project demonstrates how agentic AI can move beyond simple chat wrappers into true operational workflows. By implementing deterministic guardrails (the Circuit Breaker) and privacy-first design (Data Sanitization), we have built a tool that meets the strict compliance and accuracy standards required by enterprise finance teams.
