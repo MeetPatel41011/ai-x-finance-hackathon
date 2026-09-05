@@ -5,6 +5,9 @@ from pydantic import BaseModel
 import asyncio
 import os
 import json
+from dotenv import load_dotenv
+load_dotenv()
+
 from pipeline import run_pipeline
 from anthropic import Anthropic
 from prismtrace.claude_tracer import ClaudeAgentTracer
