@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #fbfbfa; }
+  * { box-sizing: border-box; }
+  a { color: #1a4fb4; text-decoration: none; }
+  a:hover { color: #12377f; text-decoration: underline; }
+  input, textarea, select, button { font: inherit; color: inherit; }
+  @keyframes dcSlideIn { from { transform: translateX(24px); opacity: 0.4; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes dcFade { from { opacity: 0; } to { opacity: 1; } }
+  @media print {
+    [data-print="hide"] { display: none !important; }
+    html, body { background: #fff; }
+  }
+</style>
+</helmet>
+<div style="fontFamily: 'IBM Plex Sans', Helvetica, Arial, sans-serif; color: #16181c; background: #fbfbfa; minHeight: 100vh; fontSize: 14px; lineHeight: 1.45; fontFeatureSettings: 'tnum' 1">
+
+  <div data-print="hide" style="borderBottom: 1px solid #e2e2df; background: #fff; position: sticky; top: 0; zIndex: 30">
+    <div style="maxWidth: 1180px; margin: 0 auto; padding: 0 24px; display: flex; alignItems: center; gap: 24px; height: 52px">
+      <div style="display: flex; alignItems: baseline; gap: 10px; flexShrink: 0">
+        <span style="fontWeight: 600; letterSpacing: '-0.01em'">Explain the change</span>
+        <span style="color: #6b7075; fontSize: 12.5px">{{ entity }}</span>
+      </div>
+      <div style="display: flex; gap: 2px; marginLeft: auto; flexWrap: wrap">
+        <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="4">
+          <button onClick="{{ nav.go }}" style="{{ nav.style }}">{{ nav.label }}</button>
+        </sc-for>
+        <button onClick="{{ openEvidenceAll }}" style="border: 1px solid #e2e2df; background: #fff; color: #1a4fb4; padding: 5px 11px; borderRadius: 3px; cursor: pointer; fontSize: 13px; marginLeft: 8px">Evidence</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2 — RUN VIEW ============ -->
+  <sc-if value="{{ isRun }}" hint-placeholder-val="{{ true }}">
+    <div style="maxWidth: 1180px; margin: 0 auto; padding: 28px 24px 64px">
+
+      <div style="display: flex; alignItems: flex-end; justifyContent: space-between; gap: 24px; flexWrap: wrap; paddingBottom: 14px; borderBottom: 1px solid #e2e2df">
+        <div>
+          <div style="fontSize: 22px; fontWeight: 600; letterSpacing: '-0.015em'">Variance analysis — {{ periodLabel }}</div>
+          <div style="display: flex; gap: 14px; marginTop: 6px; color: #6b7075; fontSize: 13px; fontFamily: 'IBM Plex Mono', monospace">
+            <span>{{ comparisonLabel }}</span>
+            <span style="color: #cfcfcb">/</span>
+            <span>run {{ runId }}</span>
+            <span style="color: #cfcfcb">/</span>
+            <span>{{ entity }}</span>
+          </div>
+        </div>
+        <button onClick="{{ rerun }}" style="border: 1px solid #1a4fb4; background: #fff; color: #1a4fb4; padding: 7px 14px; borderRadius: 3px; cursor: pointer">Re-run analysis</button>
+      </div>
+
+      <div style="border: 1px solid #e2e2df; background: #fff; marginTop: 20px">
+        <div style="padding: 24px 24px 20px; maxWidth: 900px; fontSize: 25px; lineHeight: 1.32; letterSpacing: '-0.015em'; textWrap: pretty; whiteSpace: pre-wrap">{{ headline }}</div>
+        <div style="display: grid; gridTemplateColumns: repeat(3, minmax(0, 1fr)); borderTop: 1px solid #e2e2df">
+          <div style="padding: 16px 24px; borderRight: 1px solid #e2e2df">
+            <div style="color: #6b7075; fontSize: 12.5px">Net variance</div>
+            <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 22px; marginTop: 4px; color: #1e7a4d">{{ netVariance }}</div>
+          </div>
+          <div style="padding: 16px 24px; borderRight: 1px solid #e2e2df">
+            <div style="color: #6b7075; fontSize: 12.5px">Accounts flagged</div>
+            <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 22px; marginTop: 4px">{{ accountsFlagged }}</div>
+          </div>
+          <div style="padding: 16px 24px">
+            <div style="color: #6b7075; fontSize: 12.5px">Variance explained</div>
+            <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 22px; marginTop: 4px">{{ pctExplained }}%</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; alignItems: baseline; justifyContent: space-between; marginTop: 30px; marginBottom: 8px">
+        <div style="fontWeight: 600">Drivers by dollar impact</div>
+        <div style="color: #6b7075; fontSize: 12.5px">Click a row to expand its contributors; click a transaction ID for evidence</div>
+      </div>
+
+      <div style="border: 1px solid #e2e2df; background: #fff">
+        <div style="display: grid; gridTemplateColumns: 22px minmax(0, 1.7fr) 1fr 0.7fr minmax(0, 1.4fr) 1.1fr; gap: 12px; padding: 9px 16px; borderBottom: 1px solid #e2e2df; color: #6b7075; fontSize: 12.5px; background: #f7f7f5">
+          <div></div>
+          <div>Account</div>
+          <div style="textAlign: right">Δ vs forecast</div>
+          <div style="textAlign: right">Δ%</div>
+          <div>Top driver</div>
+          <div>Confidence</div>
+        </div>
+        <sc-for list="{{ rows }}" as="row" hint-placeholder-count="6">
+          <div>
+            <div onClick="{{ row.toggle }}" style="{{ row.rowStyle }}">
+              <div style="color: #9a9a96; fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px">{{ row.caret }}</div>
+              <div style="minWidth: 0">
+                <div style="fontWeight: 500">{{ row.name }}</div>
+                <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px; color: #6b7075">{{ row.id }}</div>
+              </div>
+              <div style="{{ row.deltaStyle }}">{{ row.delta }}</div>
+              <div style="{{ row.deltaStyle }}">{{ row.deltaPct }}</div>
+              <div style="minWidth: 0; color: #3c4046">{{ row.topDriver }}</div>
+              <div><span style="{{ row.pillStyle }}">{{ row.pillLabel }}</span></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="marginTop: 26px;">
+        <div style="border: 1px solid #e2e2df; background: #fff; padding: 18px 20px">
+          <div style="display: flex; justifyContent: space-between; gap: 12px; alignItems: baseline">
+            <div style="fontWeight: 600">External signal (Real EDGAR Data)</div>
+            <div style="fontSize: 12px; color: #6b7075; border: 1px solid #e2e2df; padding: 2px 7px; borderRadius: 3px">Corroborating context</div>
+          </div>
+          <div style="marginTop: 12px; fontSize: 16px; lineHeight: 1.4; textWrap: pretty">{{ signalHeadline }}</div>
+          <div style="marginTop: 10px; fontFamily: 'IBM Plex Mono', monospace; fontSize: 12.5px; color: #6b7075">{{ signalMeta }}</div>
+          <div style="marginTop: 12px; paddingTop: 12px; borderTop: 1px solid #e2e2df; color: #6b7075; fontSize: 13px">Matched to {{ signalEntity }} (Theme: {{ signalTheme }}). Automatically crawled by our ingestion pipeline.</div>
+        </div>
+      </div>
+
+      <div style="marginTop: 26px; paddingTop: 14px; borderTop: 1px solid #e2e2df; display: flex; justifyContent: space-between; gap: 16px; alignItems: center; flexWrap: wrap">
+        <div style="color: #6b7075; fontSize: 13px">{{ memorySummary }}</div>
+        <div style="display: flex; gap: 8px">
+          <button onClick="{{ exportCsv }}" style="border: 1px solid #e2e2df; background: #fff; padding: 7px 13px; borderRadius: 3px; cursor: pointer">Export CSV</button>
+          <button onClick="{{ goReport }}" style="border: 1px solid #e2e2df; background: #fff; padding: 7px 13px; borderRadius: 3px; cursor: pointer">Open report</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ SCREEN 1 — NEW RUN ============ -->
+  <sc-if value="{{ isNew }}" hint-placeholder-val="{{ false }}">
+    <div style="maxWidth: 900px; margin: 0 auto; padding: 36px 24px 64px">
+      <div style="fontSize: 22px; fontWeight: 600; letterSpacing: '-0.015em'">New run</div>
+      <div style="color: #6b7075; marginTop: 4px">Upload the ledger and the plan. The agent ranks variances, drills to transactions, and writes the explanation.</div>
+
+      <div style="display: grid; gridTemplateColumns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; marginTop: 24px">
+        <sc-for list="{{ dropZones }}" as="z" hint-placeholder-count="3">
+          <div style="{{ z.boxStyle }}">
+            <div style="display: flex; justifyContent: space-between; alignItems: baseline; gap: 8px">
+              <div style="fontWeight: 500">{{ z.title }}</div>
+              <div style="fontSize: 12px; color: #6b7075">{{ z.tag }}</div>
+            </div>
+            <div style="color: #6b7075; fontSize: 12.5px; marginTop: 6px; minHeight: 34px">{{ z.hint }}</div>
+            <sc-if value="{{ z.hasFile }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; alignItems: center; gap: 8px; marginTop: 10px; border: 1px solid #e2e2df; background: #f7f7f5; borderRadius: 3px; padding: 6px 8px">
+                <span style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px; minWidth: 0; overflow: hidden; textOverflow: ellipsis; whiteSpace: nowrap">{{ z.fileName }}</span>
+                <span style="fontSize: 12px; color: #6b7075; marginLeft: auto; whiteSpace: nowrap">{{ z.rows }}</span>
+                <button onClick="{{ z.remove }}" style="border: 0; background: none; color: #6b7075; cursor: pointer; padding: 0 2px">×</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ z.empty }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ z.add }}" style="marginTop: 10px; width: 100%; border: 1px dashed #c9d6ee; background: #fff; color: #1a4fb4; padding: 8px; borderRadius: 3px; cursor: pointer">Choose file</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display: grid; gridTemplateColumns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; marginTop: 26px; paddingTop: 20px; borderTop: 1px solid #e2e2df">
+        <div>
+          <div style="color: #6b7075; fontSize: 12.5px; marginBottom: 8px">Comparison mode</div>
+          <div style="display: flex; gap: 6px">
+            <sc-for list="{{ modes }}" as="m" hint-placeholder-count="2">
+              <button onClick="{{ m.pick }}" style="{{ m.style }}">{{ m.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="color: #6b7075; fontSize: 12.5px; marginBottom: 8px">Entity</div>
+          <select value="{{ entity }}" onChange="{{ setEntity }}" style="width: 100%; maxWidth: 280px; border: 1px solid #e2e2df; background: #fff; borderRadius: 3px; padding: 7px 9px">
+            <option value="Meridian Systems">Meridian Systems</option>
+            <option value="Meridian Systems — consolidated">Meridian Systems — consolidated</option>
+          </select>
+        </div>
+        <div>
+          <div style="color: #6b7075; fontSize: 12.5px; marginBottom: 8px">Period</div>
+          <div style="fontFamily: 'IBM Plex Mono', monospace; padding: 7px 0">{{ period }}</div>
+        </div>
+      </div>
+
+      <sc-if value="{{ notRunning }}" hint-placeholder-val="{{ true }}">
+        <div style="marginTop: 26px; display: flex; gap: 12px; alignItems: center; flexWrap: wrap">
+          <button onClick="{{ runAnalysis }}" style="border: 1px solid #1a4fb4; background: #1a4fb4; color: #fff; padding: 9px 18px; borderRadius: 3px; cursor: pointer; fontSize: 15px">Run analysis</button>
+          <span style="color: #6b7075; fontSize: 13px">{{ memorySummary }}</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ running }}" hint-placeholder-val="{{ false }}">
+        <div style="marginTop: 26px; border: 1px solid #e2e2df; background: #fff; padding: 18px 20px">
+          <div style="fontWeight: 500; marginBottom: 12px">Running analysis</div>
+          <sc-for list="{{ progressSteps }}" as="s" hint-placeholder-count="5">
+            <div style="display: grid; gridTemplateColumns: 18px 1fr auto; gap: 10px; padding: 6px 0; alignItems: center">
+              <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px; color: #6b7075">{{ s.mark }}</div>
+              <div style="{{ s.labelStyle }}">{{ s.label }}</div>
+              <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px; color: #6b7075">{{ s.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ SCREEN 4 — MEMORY ============ -->
+  <sc-if value="{{ isMemory }}" hint-placeholder-val="{{ false }}">
+    <div style="maxWidth: 1000px; margin: 0 auto; padding: 32px 24px 64px">
+      <div style="fontSize: 22px; fontWeight: 600; letterSpacing: '-0.015em'">Memory</div>
+      <div style="color: #6b7075; marginTop: 4px">What the agent has learned from your corrections. Editing this changes future runs.</div>
+
+      <div style="border: 1px solid #e2e2df; background: #fff; marginTop: 20px">
+        <div style="padding: 16px 20px; borderBottom: 1px solid #e2e2df; fontWeight: 600">Accuracy across runs</div>
+        <div style="display: grid; gridTemplateColumns: repeat(auto-fit, minmax(260px, 1fr))">
+          <sc-for list="{{ heroRuns }}" as="h" hint-placeholder-count="2">
+            <div style="{{ h.style }}">
+              <div style="display: flex; justifyContent: space-between; alignItems: baseline">
+                <div style="fontWeight: 500">Run {{ h.run }}</div>
+                <div style="fontSize: 12px; color: #6b7075">{{ h.tag }}</div>
+              </div>
+              <div style="display: grid; gridTemplateColumns: repeat(3, 1fr); gap: 12px; marginTop: 16px">
+                <div>
+                  <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 30px; lineHeight: 1">{{ h.flagged }}</div>
+                  <div style="color: #6b7075; fontSize: 12.5px; marginTop: 6px">accounts flagged</div>
+                </div>
+                <div>
+                  <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 30px; lineHeight: 1">{{ h.fp }}</div>
+                  <div style="color: #6b7075; fontSize: 12.5px; marginTop: 6px">false positives</div>
+                </div>
+                <div>
+                  <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 30px; lineHeight: 1">{{ h.pct }}%</div>
+                  <div style="color: #6b7075; fontSize: 12.5px; marginTop: 6px">variance explained</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="borderTop: 1px solid #e2e2df; padding: 14px 20px; color: #6b7075; fontSize: 13px">{{ heroDelta }}</div>
+      </div>
+
+      <sc-for list="{{ memorySections }}" as="sec" hint-placeholder-count="5">
+        <div style="marginTop: 26px">
+          <div style="display: flex; justifyContent: space-between; alignItems: baseline; marginBottom: 8px">
+            <div style="fontWeight: 600">{{ sec.title }}</div>
+            <div style="color: #6b7075; fontSize: 12.5px">{{ sec.count }}</div>
+          </div>
+          <div style="border: 1px solid #e2e2df; background: #fff">
+            <sc-for list="{{ sec.items }}" as="item" hint-placeholder-count="2">
+              <div style="display: grid; gridTemplateColumns: minmax(0, 1fr) auto auto; gap: 16px; alignItems: center; padding: 11px 16px; borderBottom: 1px solid #eeeeeb">
+                <div style="minWidth: 0">
+                  <div>{{ item.primary }}</div>
+                  <div style="color: #6b7075; fontSize: 12.5px; marginTop: 2px">{{ item.secondary }}</div>
+                </div>
+                <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12.5px; color: #6b7075; whiteSpace: nowrap">learned run {{ item.run }}</div>
+                <button onClick="{{ item.remove }}" style="border: 1px solid #e2e2df; background: #fff; color: #3c4046; padding: 4px 10px; borderRadius: 3px; cursor: pointer; fontSize: 12.5px">Delete</button>
+              </div>
+            </sc-for>
+            <sc-if value="{{ sec.isEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 14px 16px; color: #6b7075">Nothing learned yet.</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- ============ SCREEN 5 — REPORT ============ -->
+  <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+    <div style="maxWidth: 860px; margin: 0 auto; padding: 32px 24px 72px">
+      <div data-print="hide" style="display: flex; gap: 8px; justifyContent: flex-end; marginBottom: 20px">
+        <button onClick="{{ exportCsv }}" style="border: 1px solid #e2e2df; background: #fff; padding: 7px 13px; borderRadius: 3px; cursor: pointer">Export CSV</button>
+        <button onClick="{{ printReport }}" style="border: 1px solid #1a4fb4; background: #1a4fb4; color: #fff; padding: 7px 13px; borderRadius: 3px; cursor: pointer">Print report</button>
+      </div>
+
+      <div style="background: #fff; border: 1px solid #e2e2df; padding: 48px 52px">
+        <div style="paddingBottom: 18px; borderBottom: 2px solid #16181c">
+          <div style="fontSize: 26px; fontWeight: 600; letterSpacing: '-0.02em'">Variance analysis — {{ periodLabel }}</div>
+          <div style="marginTop: 8px; fontFamily: 'IBM Plex Mono', monospace; fontSize: 12.5px; color: #3c4046; display: flex; gap: 14px; flexWrap: wrap">
+            <span>{{ entity }}</span><span>{{ comparisonLabel }}</span><span>run {{ runId }}</span><span>period {{ period }}</span>
+          </div>
+        </div>
+
+        <div style="marginTop: 28px">
+          <div style="fontWeight: 600; marginBottom: 8px">Executive summary</div>
+          <div style="fontSize: 16px; lineHeight: 1.5; textWrap: pretty">{{ headline }}</div>
+          <div style="marginTop: 10px; lineHeight: 1.55; color: #3c4046; textWrap: pretty">Net variance for the period is {{ netVariance }} across {{ accountsFlagged }} flagged accounts. The agent explains {{ pctExplained }}% of gross variance with transaction-level evidence. One account, {{ ownerAccount }}, remains unexplained and sits with {{ ownerName }}.</div>
+        </div>
+
+        <div style="marginTop: 28px">
+          <div style="fontWeight: 600; marginBottom: 8px">Variance table</div>
+          <div style="borderTop: 1px solid #16181c">
+            <div style="display: grid; gridTemplateColumns: minmax(0, 1.5fr) 1fr 1fr 1fr 0.7fr; gap: 10px; padding: 8px 0; borderBottom: 1px solid #e2e2df; fontSize: 12.5px; color: #6b7075">
+              <div>Account</div><div style="textAlign: right">Forecast</div><div style="textAlign: right">Actual</div><div style="textAlign: right">Δ</div><div style="textAlign: right">Δ%</div>
+            </div>
+            <sc-for list="{{ rows }}" as="row" hint-placeholder-count="6">
+              <div style="display: grid; gridTemplateColumns: minmax(0, 1.5fr) 1fr 1fr 1fr 0.7fr; gap: 10px; padding: 8px 0; borderBottom: 1px solid #eeeeeb; fontSize: 13px">
+                <div>{{ row.name }}</div>
+                <div style="fontFamily: 'IBM Plex Mono', monospace; textAlign: right; color: #3c4046">{{ row.forecast }}</div>
+                <div style="fontFamily: 'IBM Plex Mono', monospace; textAlign: right; color: #3c4046">{{ row.actual }}</div>
+                <div style="{{ row.deltaStyle }}">{{ row.delta }}</div>
+                <div style="{{ row.deltaStyle }}">{{ row.deltaPct }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="marginTop: 28px">
+          <div style="fontWeight: 600; marginBottom: 4px">Driver detail</div>
+          <sc-for list="{{ rows }}" as="row" hint-placeholder-count="6">
+            <div style="marginTop: 16px; paddingTop: 14px; borderTop: 1px solid #e2e2df">
+              <div style="display: flex; justifyContent: space-between; gap: 12px; alignItems: baseline; flexWrap: wrap">
+                <div style="fontWeight: 500">{{ row.name }} <span style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px; color: #6b7075">{{ row.id }}</span></div>
+                <div style="{{ row.deltaStyle }}">{{ row.delta }} / {{ row.deltaPct }}</div>
+              </div>
+              <div style="color: #3c4046; marginTop: 4px">{{ row.reportNarrative }}</div>
+              <sc-if value="{{ row.hasContributors }}" hint-placeholder-val="{{ true }}">
+                <div style="marginTop: 8px">
+                  <sc-for list="{{ row.contributors }}" as="c" hint-placeholder-count="1">
+                    <div style="display: grid; gridTemplateColumns: minmax(0, 1.4fr) 1fr 0.8fr 1fr; gap: 10px; padding: 5px 0; fontSize: 13px; borderBottom: 1px dotted #e2e2df">
+                      <div>{{ c.name }}</div>
+                      <div style="{{ c.amountStyle }}">{{ c.amount }}</div>
+                      <div style="fontFamily: 'IBM Plex Mono', monospace; textAlign: right; color: #3c4046">{{ c.pct }}%</div>
+                      <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px; color: #6b7075; textAlign: right">{{ c.txnId }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="marginTop: 30px; paddingTop: 14px; borderTop: 1px solid #e2e2df">
+          <div style="fontWeight: 600; marginBottom: 6px">External context</div>
+          <div style="lineHeight: 1.5">“{{ signalHeadline }}” — {{ signalMeta }}. Used as corroborating context for {{ signalEntity }} activity; it is not counted as a driver and carries no dollar attribution.</div>
+        </div>
+
+        <div style="marginTop: 26px">
+          <div style="fontWeight: 600; marginBottom: 6px">Open items</div>
+          <sc-for list="{{ openItems }}" as="o" hint-placeholder-count="2">
+            <div style="display: grid; gridTemplateColumns: minmax(0, 1fr) auto; gap: 12px; padding: 8px 0; borderBottom: 1px solid #eeeeeb">
+              <div>
+                <div>{{ o.account }} — {{ o.ask }}</div>
+                <div style="color: #6b7075; fontSize: 12.5px">{{ o.detail }}</div>
+              </div>
+              <div style="textAlign: right; whiteSpace: nowrap">{{ o.owner }}<div style="color: #6b7075; fontSize: 12.5px">{{ o.title }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="marginTop: 26px; paddingTop: 14px; borderTop: 1px solid #e2e2df; color: #3c4046; fontSize: 13px; lineHeight: 1.55">
+          <div style="fontWeight: 600; color: #16181c; marginBottom: 6px">Methodology</div>
+          The agent normalised the ledger using {{ aliasCount }} entity alias rule, compared actuals against the loaded forecast, ranked accounts by absolute dollar variance, and drilled into transactions to attribute each variance to counterparties. Public news was checked for customer-level corroboration only. Materiality thresholds and prior corrections held in memory suppressed known patterns. {{ memorySummary }}
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ SCREEN 3 — EVIDENCE DRAWER ============ -->
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; zIndex: 60">
+      <div onClick="{{ closeDrawer }}" style="position: absolute; inset: 0; background: rgba(22, 24, 28, 0.22); animation: dcFade 160ms ease-out"></div>
+      <div style="position: absolute; top: 0; right: 0; bottom: 0; width: min(620px, 100%); background: #fff; borderLeft: 1px solid #e2e2df; display: flex; flexDirection: column; animation: dcSlideIn 200ms ease-out">
+        <div style="padding: 18px 22px 14px; borderBottom: 1px solid #e2e2df">
+          <div style="display: flex; justifyContent: space-between; gap: 12px; alignItems: flex-start">
+            <div>
+              <div style="fontWeight: 600">Evidence</div>
+              <div style="color: #6b7075; fontSize: 12.5px; marginTop: 2px">{{ drawerScope }}</div>
+            </div>
+            <button onClick="{{ closeDrawer }}" style="border: 1px solid #e2e2df; background: #fff; padding: 4px 10px; borderRadius: 3px; cursor: pointer; fontSize: 12.5px">Close</button>
+          </div>
+          <div style="display: flex; gap: 8px; marginTop: 14px; flexWrap: wrap; alignItems: center">
+            <input value="{{ filterText }}" onChange="{{ setFilter }}" placeholder="Filter by counterparty, description, or ID" style="flex: 1 1 220px; minWidth: 0; border: 1px solid #e2e2df; borderRadius: 3px; padding: 6px 9px; fontSize: 13px" />
+            <button onClick="{{ toggleDriversOnly }}" style="{{ driversOnlyStyle }}">Drivers only</button>
+          </div>
+        </div>
+        <div style="overflow: auto; flex: 1 1 auto">
+          <sc-for list="{{ drawerTxns }}" as="t" hint-placeholder-count="6">
+            <div style="{{ t.style }}">
+              <div style="display: grid; gridTemplateColumns: 92px minmax(0, 1fr) auto; gap: 12px; alignItems: baseline">
+                <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12.5px; color: #6b7075">{{ t.date }}</div>
+                <div style="minWidth: 0">
+                  <div>{{ t.description }}</div>
+                  <div style="color: #6b7075; fontSize: 12.5px; marginTop: 2px">{{ t.counterparty }}</div>
+                </div>
+                <div style="textAlign: right">
+                  <div style="{{ t.amountStyle }}">{{ t.amount }}</div>
+                  <div style="fontFamily: 'IBM Plex Mono', monospace; fontSize: 12px; color: #6b7075; marginTop: 2px">{{ t.id }}</div>
+                </div>
+              </div>
+              <sc-if value="{{ t.isContext }}" hint-placeholder-val="{{ false }}">
+                <div style="color: #9a9a96; fontSize: 12px; marginTop: 6px">Context only — below materiality, not attributed to a driver.</div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ drawerEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 20px 22px; color: #6b7075">No transactions match this filter.</div>
+          </sc-if>
+        </div>
+        <div style="borderTop: 1px solid #e2e2df; padding: 12px 22px; color: #6b7075; fontSize: 12.5px; display: flex; justifyContent: space-between; gap: 12px">
+          <span>{{ drawerCountLine }}</span>
+          <span>Escape closes</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const DATA = {
+  run: { id: 6, period: "Q1'24", comparison: "prior period", entity: "Meridian Systems" },
+  summary: {
+    headline: "Run analysis to view CFO brief.",
+    net_variance: 0, accounts_flagged: 0, pct_explained: 100
+  },
+  accounts: [],
+  external_signals: [{ entity: "---", date: "---", headline: "Run analysis to load EDGAR context...", source: "---", theme: "---", relevance: "context_only" }],
+  transactions: [],
+  memory: { aliases: [], thresholds: [], corrections: [], owners: [], run_history: [] }
+};
+
+const INK = "#16181c", MUTED = "#6b7075", LINE = "#e2e2df", BLUE = "#1a4fb4", UP = "#1e7a4d", DOWN = "#b3261e";
+const MONO = "'IBM Plex Mono', ui-monospace, monospace";
+const CATS = [
+  { key: "reclass", label: "Reclass" },
+  { key: "timing", label: "Timing" },
+  { key: "expected_seasonal", label: "Expected seasonal" },
+  { key: "wrong_entity", label: "Wrong entity" },
+  { key: "other", label: "Other" }
+];
+const STEPS = [
+  { label: "Normalising ledger", note: "10 transactions" },
+  { label: "Ranking variances", note: "6 accounts" },
+  { label: "Drilling to transactions", note: "7 drivers" },
+  { label: "Checking external signals", note: "1 match" },
+  { label: "Writing explanation", note: "" }
+];
+
+function money(n) {
+  const s = n < 0 ? "−" : "+";
+  return s + "$" + Math.abs(n).toLocaleString("en-US");
+}
+function plain(n) { return "$" + Math.abs(n).toLocaleString("en-US"); }
+function pct(n) { return (n < 0 ? "−" : "+") + Math.abs(n).toFixed(1) + "%"; }
+
+class Component extends DCLogic {
+  state = {
+    screen: "new",
+    data: DATA,
+    expanded: { "4200": true },
+    drawer: null,
+    filterText: "",
+    driversOnly: false,
+    askOpen: false, askSent: false,
+    askText: "",
+    correctOpen: false, correctSaved: false,
+    category: "other", noteText: "",
+    running: false, stepIndex: 0,
+    mode: "forecast",
+    entity: DATA.run.entity,
+    files: { actuals: true, projections: true, context: true }
+  };
+
+  componentDidMount() {
+    this._key = (e) => { if (e.key === "Escape" && this.state.drawer) this.setState({ drawer: null }); };
+    window.addEventListener("keydown", this._key);
+    const o = this.owner();
+    this.setState({ askText: this.draftMessage(o) });
+  }
+  componentWillUnmount() {
+    window.removeEventListener("keydown", this._key);
+    (this._timers || []).forEach(clearTimeout);
+  }
+
+  owner() {
+    const d = this.state.data;
+    const un = d.accounts.find(a => a.confidence === "unexplained");
+    const o = d.memory.owners.find(x => x.account === (un ? un.name : "")) || d.memory.owners[0] || { account: "—", owner: "—", title: "", learned_run: 1 };
+    return Object.assign({}, o, { delta: un ? un.delta : 0 });
+  }
+  draftMessage(o) {
+    return "Hi " + o.owner + " — " + o.account + " came in " + money(o.delta) + " against forecast for August 2026 (" +
+      "−9.2%). Transaction-level review found no counterparty movement above threshold, so the variance is unexplained. " +
+      "Can you add a comment on what drove the shortfall before we close the month?";
+  }
+  sorted() { return this.state.data.accounts.slice().sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)); }
+
+  pillStyle(kind) {
+    const base = { display: "inline-block", fontSize: "12.5px", padding: "2px 9px", borderRadius: "999px", whiteSpace: "nowrap" };
+    if (kind === "explained") return Object.assign({}, base, { background: "#f0f0ed", border: "1px solid " + LINE, color: INK });
+    if (kind === "partial") return Object.assign({}, base, { background: "#fff", border: "1px solid #bfbfba", color: "#3c4046" });
+    if (kind === "known_pattern") return Object.assign({}, base, { background: "#fff", border: "1px dashed #bfbfba", color: MUTED });
+    return Object.assign({}, base, { background: INK, border: "1px solid " + INK, color: "#fff" });
+  }
+  pillLabel(kind) {
+    return { explained: "Explained", partial: "Partially explained", known_pattern: "Known pattern", unexplained: "Unexplained" }[kind] || kind;
+  }
+  numStyle(n, size) {
+    return { fontFamily: MONO, textAlign: "right", color: n < 0 ? DOWN : UP, fontSize: (size || 13) + "px", whiteSpace: "nowrap" };
+  }
+
+  openDrawer(scope, ids) { this.setState({ drawer: { scope: scope, ids: ids || null }, filterText: "", driversOnly: false }); }
+
+  go(screen) { this.setState({ screen: screen }); window.scrollTo(0, 0); }
+
+  runAnalysis() {
+    (this._timers || []).forEach(clearTimeout);
+    this._timers = [];
+    this.setState({ screen: "new", running: true, stepIndex: 0 });
+    
+    // Simulate initial steps while waiting for backend
+    for (let i = 1; i <= STEPS.length; i++) {
+      this._timers.push(setTimeout(() => this.setState({ stepIndex: i }), i * 1500));
+    }
+    
+    // Call the Python Multi-Agent Backend
+    fetch("/api/analyze", { method: "POST" })
+      .then(res => res.json())
+      .then(result => {
+        // Clear remaining timers so it doesn't auto-navigate
+        (this._timers || []).forEach(clearTimeout);
+        
+        let headline = result.error || result.cfo_brief || "Analysis complete.";
+        headline = headline.replace(/\. ([A-Z])/g, ".\n\n$1");
+        let found_accounts = result.variances || [];
+        
+        this.setState(s => {
+          const newData = Object.assign({}, s.data);
+          newData.summary.headline = headline;
+          newData.summary.net_variance = result.net_variance || 0;
+          newData.summary.pct_explained = 100;
+          
+          if (result.external_signal) {
+            newData.external_signals = [result.external_signal];
+          }
+          if (result.memory) {
+            newData.memory = result.memory;
+          }
+          if (result.run_id) {
+            newData.run.id = result.run_id;
+          }
+          if (result.quarter) {
+            newData.run.period = result.quarter;
+          }
+          
+          if (found_accounts.length > 0) {
+            newData.accounts = found_accounts.map((va, i) => ({
+                id: (4000 + i).toString(),
+                name: va.ticker + " - " + va.metric_name,
+                forecast: 0, actual: 0,
+                delta: va.delta, delta_pct: (va.delta * 100).toFixed(1),
+                confidence: "explained", top_driver: "Found by Claude",
+                contributors: []
+            }));
+            newData.summary.accounts_flagged = found_accounts.length;
+          } else {
+             newData.accounts = [];
+             newData.summary.accounts_flagged = 0;
+          }
+          
+          return { running: false, screen: "run", data: newData };
+        });
+        window.scrollTo(0, 0);
+      })
+      .catch(err => {
+         console.error(err);
+         this.setState({ running: false, screen: "run" });
+      });
+  }
+
+  exportCsv() {
+    const head = ["Account ID", "Account", "Forecast", "Actual", "Delta", "Delta %", "Top driver", "Confidence"];
+    const lines = [head.join(",")].concat(this.sorted().map(a => [
+      a.id, '"' + a.name + '"', a.forecast, a.actual, a.delta, a.delta_pct, '"' + a.top_driver + '"', this.pillLabel(a.confidence)
+    ].join(",")));
+    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "variance-" + this.state.data.run.period + "-run" + this.state.data.run.id + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  submitCorrection() {
+    const o = this.owner();
+    const cat = CATS.find(c => c.key === this.state.category);
+    const entry = {
+      account: o.account, category: cat.label.toLowerCase(),
+      note: this.state.noteText.trim() || "Reviewed on run " + this.state.data.run.id + ", no driver found",
+      learned_run: this.state.data.run.id
+    };
+    this.setState(s => {
+      const mem = Object.assign({}, s.data.memory, { corrections: s.data.memory.corrections.concat([entry]) });
+      return { data: Object.assign({}, s.data, { memory: mem }), correctOpen: false, correctSaved: true, noteText: "" };
+    });
+  }
+
+  removeMemory(key, index) {
+    this.setState(s => {
+      const mem = Object.assign({}, s.data.memory);
+      mem[key] = mem[key].filter((_, i) => i !== index);
+      return { data: Object.assign({}, s.data, { memory: mem }) };
+    });
+  }
+
+  renderVals() {
+    const s = this.state, d = s.data, m = d.memory;
+    const o = this.owner();
+    const sig = d.external_signals[0];
+    const narrative = {
+      "4000": "Three enterprise accounts carry 78% of the beat. Each is supported by a signed transaction in the period.",
+      "6200": "Vertex Cloud repricing explains 82% of the overrun. The remaining 18% is spread across smaller compute lines and is not yet attributed.",
+      "4100": "Northwind migration phase two lands in this period and accounts for 83% of the overage.",
+      "6400": "A known Q3 timing shift, confirmed by your correction on run 4. Flagged for visibility, not as a miss.",
+      "4200": "No driver found. No counterparty movement clears the materiality threshold; the shortfall is distributed across the SMB book.",
+      "6100": "A cancelled event sponsorship accounts for the entire underspend."
+    };
+
+    const rows = this.sorted().map(a => {
+      const open = !!s.expanded[a.id];
+      return {
+        id: a.id, name: a.name, topDriver: a.top_driver,
+        delta: money(a.delta), deltaPct: pct(a.delta_pct),
+        forecast: plain(a.forecast), actual: plain(a.actual),
+        deltaStyle: this.numStyle(a.delta),
+        pillStyle: this.pillStyle(a.confidence), pillLabel: this.pillLabel(a.confidence),
+        caret: open ? "–" : "+", open: open,
+        hasContributors: open && a.contributors.length > 0,
+        noDriver: open && a.contributors.length === 0,
+        reportNarrative: narrative[a.id],
+        footnote: "Percentages are share of this account's " + plain(a.delta) + " variance.",
+        rowStyle: {
+          display: "grid",
+          gridTemplateColumns: "22px minmax(0, 1.7fr) 1fr 0.7fr minmax(0, 1.4fr) 1.1fr",
+          gap: "12px", padding: "12px 16px", alignItems: "center", cursor: "pointer",
+          borderBottom: "1px solid " + (open ? "transparent" : "#eeeeeb"),
+          background: open ? "#f7f7f5" : "#fff"
+        },
+        toggle: () => this.setState(st => {
+          const ex = Object.assign({}, st.expanded);
+          if (ex[a.id]) delete ex[a.id]; else ex[a.id] = true;
+          return { expanded: ex };
+        }),
+        openOwner: () => { this.setState({ askOpen: false, correctOpen: true }); },
+        contributors: a.contributors.map(c => ({
+          name: c.name, amount: money(c.amount), pct: c.pct_of_variance, txnId: c.txn_id,
+          amountStyle: this.numStyle(c.amount),
+          open: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.openDrawer(a.name + " / " + c.name, [c.txn_id]); }
+        }))
+      };
+    });
+
+    const navDefs = [
+      { key: "new", label: "New run" }, { key: "run", label: "Run view" },
+      { key: "memory", label: "Memory" }, { key: "report", label: "Report" }
+    ];
+    const navItems = navDefs.map(n => ({
+      label: n.label, go: () => this.go(n.key),
+      style: {
+        border: "1px solid " + (s.screen === n.key ? LINE : "transparent"),
+        background: s.screen === n.key ? "#f0f0ed" : "transparent",
+        color: s.screen === n.key ? INK : MUTED,
+        padding: "5px 11px", borderRadius: "3px", cursor: "pointer", fontSize: "13px"
+      }
+    }));
+
+    const memorySummary = "Memory holds " + m.aliases.length + " alias" + (m.aliases.length === 1 ? "" : "es") + ", " +
+      m.corrections.length + " correction" + (m.corrections.length === 1 ? "" : "s") + ", " +
+      m.thresholds.length + " threshold" + (m.thresholds.length === 1 ? "" : "s") + ", and " +
+      m.owners.length + " account owner" + (m.owners.length === 1 ? "" : "s") + ".";
+
+    const txnsAll = d.transactions;
+    const dr = s.drawer;
+    let list = txnsAll;
+    if (dr && dr.ids) {
+      const setIds = dr.ids;
+      list = txnsAll.slice().sort((a, b) => (setIds.indexOf(b.id) >= 0 ? 1 : 0) - (setIds.indexOf(a.id) >= 0 ? 1 : 0));
+    }
+    const q = s.filterText.trim().toLowerCase();
+    const filtered = list.filter(t => {
+      if (s.driversOnly && !t.driver) return false;
+      if (!q) return true;
+      return (t.counterparty + " " + t.description + " " + t.id).toLowerCase().indexOf(q) >= 0;
+    });
+    const focus = dr && dr.ids ? dr.ids : null;
+    const drawerTxns = filtered.map(t => {
+      const emphasised = focus ? focus.indexOf(t.id) >= 0 : t.driver;
+      return {
+        id: t.id, date: t.date, description: t.description, counterparty: t.counterparty,
+        amount: money(t.amount),
+        amountStyle: Object.assign(this.numStyle(t.amount, 14), emphasised ? {} : { opacity: 0.5 }),
+        isContext: !t.driver,
+        style: {
+          padding: "13px 22px", borderBottom: "1px solid #eeeeeb",
+          background: emphasised ? "#fff" : "#fbfbfa",
+          opacity: emphasised ? 1 : 0.62,
+          borderLeft: emphasised ? "2px solid " + INK : "2px solid transparent"
+        }
+      };
+    });
+
+    const heroRuns = m.run_history.map((h, i) => ({
+      run: h.run, flagged: h.flagged, fp: h.false_positives, pct: h.pct_explained,
+      tag: i === 0 ? "first run, no memory" : "current run",
+      style: {
+        padding: "20px 24px",
+        borderRight: i === 0 ? "1px solid " + LINE : "none",
+        background: i === 0 ? "#fbfbfa" : "#fff",
+        color: i === 0 ? "#3c4046" : INK
+      }
+    }));
+    const first = m.run_history[0] || { run: 1, flagged: 0, false_positives: 0, pct_explained: 100 };
+    const last = m.run_history[m.run_history.length - 1] || { run: 1, flagged: 0, false_positives: 0, pct_explained: 100 };
+    const heroDelta = "Between run " + first.run + " and run " + last.run + " the agent cut flagged accounts from " + first.flagged +
+      " to " + last.flagged + ", eliminated all " + first.false_positives + " false positives, and raised variance explained from " +
+      first.pct_explained + "% to " + last.pct_explained + "%.";
+
+    const mk = (key, items) => items.map((it, i) => Object.assign({}, it, { remove: () => this.removeMemory(key, i) }));
+    const memorySections = [
+      { title: "Entity aliases", count: m.aliases.length + " rule" + (m.aliases.length === 1 ? "" : "s"), isEmpty: m.aliases.length === 0,
+        items: mk("aliases", m.aliases.map(a => ({ primary: a.from + " → " + a.to, secondary: "Ledger name mapped to canonical entity", run: a.learned_run }))) },
+      { title: "Materiality thresholds", count: m.thresholds.length + " threshold" + (m.thresholds.length === 1 ? "" : "s"), isEmpty: m.thresholds.length === 0,
+        items: mk("thresholds", m.thresholds.map(t => ({ primary: t.account + " — flag above " + t.pct + "%", secondary: "Variance below this is not flagged", run: t.learned_run }))) },
+      { title: "Your corrections", count: m.corrections.length + " correction" + (m.corrections.length === 1 ? "" : "s"), isEmpty: m.corrections.length === 0,
+        items: mk("corrections", m.corrections.map(c => ({ primary: c.account + " — " + c.category, secondary: c.note, run: c.learned_run }))) },
+      { title: "Account owners", count: m.owners.length + " owner" + (m.owners.length === 1 ? "" : "s"), isEmpty: m.owners.length === 0,
+        items: mk("owners", m.owners.map(w => ({ primary: w.account + " — " + w.owner, secondary: w.title, run: w.learned_run }))) },
+      { title: "Run history", count: m.run_history.length + " runs kept", isEmpty: m.run_history.length === 0,
+        items: mk("run_history", m.run_history.map(h => ({ primary: "Run " + h.run + " — " + h.flagged + " flagged, " + h.false_positives + " false positives", secondary: h.pct_explained + "% of variance explained", run: h.run }))) }
+    ];
+
+    const openItems = d.accounts.filter(a => a.confidence === "unexplained" || a.confidence === "partial").map(a => {
+      const own = m.owners.find(w => w.account === a.name);
+      return {
+        account: a.name,
+        ask: a.confidence === "unexplained" ? "comment requested on unexplained variance" : "confirm remaining unattributed variance",
+        detail: money(a.delta) + " / " + pct(a.delta_pct) + " — " + a.top_driver,
+        owner: own ? own.owner : "Unassigned",
+        title: own ? own.title : "No owner in memory"
+      };
+    });
+
+    const dropZones = [
+      { key: "actuals", title: "Actuals", tag: "Required", hint: "Transaction-level general ledger export, one row per entry.", fileName: "gl_actuals_2026-08.csv", rows: d.transactions.length + " rows" },
+      { key: "projections", title: "Projections", tag: "Required", hint: "Forecast by account for the period.", fileName: "forecast_2026-08.csv", rows: d.accounts.length + " rows" },
+      { key: "context", title: "Context documents", tag: "Optional", hint: "Board notes, vendor contracts, anything that explains a movement.", fileName: "northwind_press_note.pdf", rows: d.external_signals.length + " document" }
+    ].map(z => ({
+      title: z.title, tag: z.tag, hint: z.hint, fileName: z.fileName, rows: z.rows,
+      hasFile: !!s.files[z.key], empty: !s.files[z.key],
+      boxStyle: { border: "1px solid " + LINE, background: "#fff", padding: "16px 18px" },
+      add: () => this.setState(st => ({ files: Object.assign({}, st.files, { [z.key]: true }) })),
+      remove: () => this.setState(st => ({ files: Object.assign({}, st.files, { [z.key]: false }) }))
+    }));
+
+    const chip = (active) => ({
+      border: "1px solid " + (active ? BLUE : LINE), background: active ? "#f4f7fd" : "#fff",
+      color: active ? BLUE : "#3c4046", padding: "6px 12px", borderRadius: "3px", cursor: "pointer", fontSize: "13px"
+    });
+
+    return {
+      isNew: s.screen === "new", isRun: s.screen === "run", isMemory: s.screen === "memory", isReport: s.screen === "report",
+      navItems: navItems,
+      entity: s.entity, period: d.run.period, periodLabel: d.run.period,
+      comparisonLabel: s.mode === "forecast" ? "vs forecast" : "vs prior period",
+      runId: d.run.id,
+      headline: d.summary.headline,
+      netVariance: money(d.summary.net_variance),
+      accountsFlagged: d.summary.accounts_flagged,
+      pctExplained: d.summary.pct_explained,
+      rows: rows,
+      signalHeadline: sig.headline,
+      signalMeta: sig.source + " / " + sig.date,
+      signalEntity: sig.entity,
+      ownerName: o.owner, ownerTitle: o.title, ownerAccount: o.account, ownerRun: o.learned_run,
+      ownerDelta: money(o.delta),
+      askOpen: s.askOpen, askSent: s.askSent && !s.askOpen, askText: s.askText,
+      toggleAsk: () => this.setState(st => ({ askOpen: !st.askOpen, askSent: false, askText: st.askText || this.draftMessage(o) })),
+      setAskText: (e) => this.setState({ askText: e.target.value }),
+      sendAsk: () => this.setState({ askOpen: false, askSent: true }),
+      correctOpen: s.correctOpen, correctSaved: s.correctSaved && !s.correctOpen,
+      toggleCorrect: () => this.setState(st => ({ correctOpen: !st.correctOpen, correctSaved: false })),
+      categories: CATS.map(c => ({ label: c.label, pick: () => this.setState({ category: c.key }), style: chip(s.category === c.key) })),
+      noteText: s.noteText,
+      setNoteText: (e) => this.setState({ noteText: e.target.value }),
+      submitCorrection: () => this.submitCorrection(),
+      goMemory: () => this.go("memory"),
+      goReport: () => this.go("report"),
+      memorySummary: memorySummary,
+      aliasCount: m.aliases.length,
+      exportCsv: () => this.exportCsv(),
+      printReport: () => window.print(),
+      rerun: () => this.runAnalysis(),
+      runAnalysis: () => this.runAnalysis(),
+      running: s.running, notRunning: !s.running,
+      progressSteps: STEPS.map((st, i) => ({
+        label: st.label, note: i < s.stepIndex ? st.note : "",
+        mark: i < s.stepIndex ? "done" : (i === s.stepIndex ? "·" : ""),
+        labelStyle: { color: i < s.stepIndex ? INK : (i === s.stepIndex ? INK : "#9a9a96") }
+      })),
+      modes: [
+        { key: "forecast", label: "vs forecast" }, { key: "prior", label: "vs prior period" }
+      ].map(x => ({ label: x.label, pick: () => this.setState({ mode: x.key }), style: chip(s.mode === x.key) })),
+      dropZones: dropZones,
+      setEntity: (e) => this.setState({ entity: e.target.value }),
+      heroRuns: heroRuns, heroDelta: heroDelta,
+      memorySections: memorySections,
+      openItems: openItems,
+      drawerOpen: !!dr,
+      drawerScope: dr ? (dr.scope || "All transactions in the period") : "",
+      drawerTxns: drawerTxns,
+      drawerEmpty: drawerTxns.length === 0,
+      drawerCountLine: drawerTxns.length + " of " + txnsAll.length + " transactions shown",
+      filterText: s.filterText,
+      setFilter: (e) => this.setState({ filterText: e.target.value }),
+      driversOnly: s.driversOnly,
+      driversOnlyStyle: chip(s.driversOnly),
+      toggleDriversOnly: () => this.setState(st => ({ driversOnly: !st.driversOnly })),
+      closeDrawer: () => this.setState({ drawer: null }),
+      openEvidenceAll: () => this.openDrawer("All transactions in the period", null)
+    };
+  }
+}
+
+</script>
+</body>
+</html>

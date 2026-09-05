@@ -1,0 +1,4 @@
+ticker,quarter,metric_name,value,trend,flag
+TSLA,2024Q3,revenue_qoq,0.066,recovering,revenue_in_line
+NVDA,2024Q3,revenue_qoq,0.083,accelerating,revenue_beat
+Northwind Systems,2024Q3,enterprise_revenue_qoq,0.068,steady,revenue_in_line

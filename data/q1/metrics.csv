@@ -1,0 +1,4 @@
+ticker,quarter,metric_name,value,trend,flag
+TSLA,2024Q1,revenue_qoq,-0.153,decelerating,revenue_miss
+NVDA,2024Q1,revenue_qoq,0.178,accelerating,revenue_beat
+NORTHWIND SYS LLC,2024Q1,enterprise_revenue_qoq,0.321,accelerating,revenue_beat

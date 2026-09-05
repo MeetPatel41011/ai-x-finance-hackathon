@@ -1,0 +1,7 @@
+ticker,quarter,metric_name,value,unit,source,as_of,url
+TSLA,2024Q3,revenue,24000000000.0,USD,10-Q,2024-10-23,https://sec.gov
+TSLA,2024Q2,revenue,22500000000.0,USD,10-Q,2024-07-23,https://sec.gov
+NVDA,2024Q3,revenue,32540000000.0,USD,10-Q,2024-11-22,https://sec.gov
+NVDA,2024Q2,revenue,30040000000.0,USD,10-Q,2024-08-22,https://sec.gov
+Northwind Systems,2024Q3,enterprise_revenue,1550000.0,USD,internal,2024-10-23,
+Northwind Systems,2024Q2,enterprise_revenue,1450000.0,USD,internal,2024-07-23,
