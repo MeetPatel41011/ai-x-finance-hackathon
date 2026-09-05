@@ -480,7 +480,13 @@ const DATA = {
   },
   accounts: [],
   external_signals: [{ entity: "---", date: "---", headline: "Run analysis to load EDGAR context...", source: "---", theme: "---", relevance: "context_only" }],
-  transactions: [],
+  transactions: [
+    { id: "10045-A", date: "2026-08-14", description: "Cloud usage fee (Compute engine)", counterparty: "Vertex", amount: -45200, driver: true },
+    { id: "10046-A", date: "2026-08-15", description: "Cloud storage tier increase", counterparty: "Vertex", amount: -12500, driver: true },
+    { id: "10047-B", date: "2026-08-16", description: "Enterprise software license renewal", counterparty: "Northwind Systems", amount: -150000, driver: true },
+    { id: "10048-C", date: "2026-08-18", description: "Office supplies bulk order", counterparty: "Staples", amount: -450, driver: false },
+    { id: "10049-D", date: "2026-08-20", description: "Legal consulting retainer", counterparty: "Dewey & LeBoeuf", amount: -25000, driver: false }
+  ],
   memory: { aliases: [], thresholds: [], corrections: [], owners: [], run_history: [] }
 };
 

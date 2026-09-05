@@ -1,19 +1,29 @@
 {
-  "cfo_brief": "Revenue grew $2.5B sequentially (+8.32% QoQ), from $30.04B in Q2 2024 to $32.54B in Q3 2024, per SEC 10-Q filings. The increase is attributed to Blackwell-generation GPU shipments entering the revenue base, evidenced by a same-day (Nov 22, 2024) CNBC report citing \"unprecedented demand\" for the new chips\u2014indicating supply-constrained pricing power rather than incremental Hopper/H100 growth. This magnitude and timing point to a discrete product-cycle transition event, not organic linear growth, with next-gen Data Center GPU ramp as the primary earnings driver disclosed alongside the filing.",
+  "cfo_brief": "Revenue fell $3.87B (-15.4%) sequentially, from $25.17B in Q4 2023 to $21.30B in Q1 2024, as confirmed in filings dated January 24 and April 23, 2024, respectively. A same-day Reuters report accompanying the 10-Q attributes the drop to aggressive ASP price cuts made to stimulate demand, framing this explicitly as a margin-compression story rather than a unit-volume collapse. The decline likely reflects a compounding effect of normal seasonal softness following the historically strong Q4 delivery push, layered with structural pricing erosion from the deliberate strategy to prioritize volume over per-unit revenue.",
   "variances": [
+    {
+      "ticker": "NORTHWIND SYS LLC",
+      "metric_name": "enterprise_revenue_qoq",
+      "delta": 0.321
+    },
     {
       "ticker": "NVDA",
       "metric_name": "revenue_qoq",
-      "delta": 0.083
+      "delta": 0.178
+    },
+    {
+      "ticker": "TSLA",
+      "metric_name": "revenue_qoq",
+      "delta": -0.153
     }
   ],
-  "net_variance": 0.083,
+  "net_variance": 0.346,
   "external_signal": {
-    "headline": "Nvidia Blackwell chips see unprecedented demand.",
-    "source": "CNBC",
-    "date": "2024-11-22",
-    "theme": "AI",
-    "entity": "NVDA"
+    "headline": "Price cuts pressure auto margin as TSLA attempts to spur demand.",
+    "source": "Reuters",
+    "date": "2024-04-23",
+    "theme": "margins",
+    "entity": "TSLA"
   },
   "memory": {
     "run_history": [
@@ -22,48 +32,6 @@
         "flagged": 3,
         "false_positives": 2,
         "pct_explained": 80
-      },
-      {
-        "run": 2,
-        "flagged": 1,
-        "false_positives": 0,
-        "pct_explained": 90
-      },
-      {
-        "run": 3,
-        "flagged": 1,
-        "false_positives": 0,
-        "pct_explained": 100
-      },
-      {
-        "run": 4,
-        "flagged": 1,
-        "false_positives": 0,
-        "pct_explained": 100
-      },
-      {
-        "run": 5,
-        "flagged": 1,
-        "false_positives": 0,
-        "pct_explained": 100
-      },
-      {
-        "run": 6,
-        "flagged": 1,
-        "false_positives": 0,
-        "pct_explained": 100
-      },
-      {
-        "run": 7,
-        "flagged": 1,
-        "false_positives": 0,
-        "pct_explained": 100
-      },
-      {
-        "run": 8,
-        "flagged": 1,
-        "false_positives": 0,
-        "pct_explained": 100
       }
     ],
     "aliases": [
@@ -73,23 +41,10 @@
         "learned_run": 1
       }
     ],
-    "thresholds": [
-      {
-        "account": "revenue_qoq",
-        "pct": 12,
-        "learned_run": 2
-      }
-    ],
+    "thresholds": [],
     "corrections": [],
-    "owners": [
-      {
-        "account": "revenue",
-        "owner": "CFO Desk",
-        "title": "Finance Team",
-        "learned_run": 2
-      }
-    ]
+    "owners": []
   },
-  "run_id": 8,
-  "quarter": "2024Q3"
+  "run_id": 1,
+  "quarter": "2024Q1"
 }
