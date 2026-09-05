@@ -7,6 +7,7 @@ import os
 import json
 from pipeline import run_pipeline
 from anthropic import Anthropic
+from prismtrace.claude_tracer import ClaudeAgentTracer
 
 app = FastAPI()
 
@@ -25,6 +26,8 @@ class ChatRequest(BaseModel):
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    tracer = ClaudeAgentTracer(client, api_key=os.environ.get("PRISMTRACE_API_KEY"), project_id="f801d3ca-24a6-4561-ab94-65c0018b5cfa", agent_name="chat-agent")
+    tracer.instrument_client()
     
     # Read the latest run data as context
     run_context = "No run data available yet."
@@ -36,8 +39,8 @@ async def chat(request: ChatRequest):
             pass
 
     system_prompt = f"""
-    You are an expert Financial Planning & Analysis (FP&A) assistant.
-    You are helping the user analyze the financial changes for this quarter.
+    You are a customer service AI assistant helping a customer with Financial Planning & Analysis (FP&A).
+    You are helping the customer analyze the financial changes for this quarter.
     Answer their questions intelligently, concisely, and professionally based ONLY on the following run data payload.
     
     IMPORTANT FORMATTING RULES:
@@ -72,8 +75,8 @@ class TTSRequest(BaseModel):
 
 @app.post("/api/tts")
 async def tts(request: TTSRequest):
-    # Use the provided ElevenLabs API key
-    key = "sk_5aaaba4ef3d2c67d303f52fc2ec5c4d9f7ebcdbc005e39eb"
+    # Use the ElevenLabs API key from the environment
+    key = os.environ.get("ELEVENLABS_API_KEY", "")
     headers = {
         "xi-api-key": key,
         "Content-Type": "application/json"

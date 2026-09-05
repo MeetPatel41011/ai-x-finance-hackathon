@@ -1,6 +1,7 @@
 import asyncio
 import os
 import json
+import uuid
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -16,6 +17,8 @@ async def run_pipeline():
     print("==================================================")
     print("  🚀 ZERO-TRUST AUTONOMOUS FP&A WORKER STARTING   ")
     print("==================================================\n")
+    
+    session_id = str(uuid.uuid4())
     
     # 0. Load Memory
     memory_path = "memory.json"
@@ -63,7 +66,7 @@ async def run_pipeline():
 
     # 2. Agent 1 (Variance Isolation)
     print("\n2. Agent 1: Isolating Variances...")
-    suspect_accounts = isolate_variances(clean_financials, clean_metrics)
+    suspect_accounts = isolate_variances(clean_financials, clean_metrics, session_id=session_id)
     print(f"  [Agent 1 JSON Payload]: {suspect_accounts}")
 
     if not suspect_accounts:
@@ -74,7 +77,7 @@ async def run_pipeline():
     print("\n3. Launching Concurrent Tasks (Circuit Breaker Pattern)...")
     
     async def run_agent2():
-        return await investigate_drivers(suspect_accounts, clean_news, clean_financials)
+        return await investigate_drivers(suspect_accounts, clean_news, clean_financials, session_id=session_id)
 
     raw_forensic_report = await run_concurrent_phase(suspect_accounts, clean_metrics, run_agent2)
     
@@ -86,7 +89,7 @@ async def run_pipeline():
     # 4. Agent 3 (Context Synthesizer)
     print("\n4. Agent 3: Synthesizing Executive Narrative...")
     synthesizer = ContextSynthesizer()
-    final_narrative_masked = synthesizer.synthesize_narrative(raw_forensic_report)
+    final_narrative_masked = synthesizer.synthesize_narrative(raw_forensic_report, session_id=session_id)
     
     # 5. Rehydration
     print("\n[Sanitizer] Re-hydrating PII for final output...")
