@@ -1,0 +1,83 @@
+{
+  "cfo_brief": "Revenue rose from $30.04B in Q2 2024 to $32.54B in Q3 2024, a $2.5B (+8.32%) sequential increase, per SEC 10-Q filings. This jump exceeds normal enterprise/gaming growth patterns and coincides with a same-day CNBC report (Nov 22, 2024) citing \"unprecedented demand\" for Nvidia's Blackwell chips, suggesting management attributed the beat directly to next-gen Data Center GPU ramp rather than legacy Hopper/H100 sales. The exact-date alignment between the earnings filing and the Blackwell demand narrative indicates this was a disclosed, structural driver in the Q3 MD&A/earnings call\u2014not incidental press coverage.",
+  "variances": [
+    {
+      "ticker": "NVDA",
+      "metric_name": "revenue_qoq",
+      "delta": 0.083
+    }
+  ],
+  "net_variance": 0.083,
+  "external_signal": {
+    "headline": "Nvidia Blackwell chips see unprecedented demand.",
+    "source": "CNBC",
+    "date": "2024-11-22",
+    "theme": "AI",
+    "entity": "NVDA"
+  },
+  "memory": {
+    "run_history": [
+      {
+        "run": 1,
+        "flagged": 3,
+        "false_positives": 2,
+        "pct_explained": 80
+      },
+      {
+        "run": 2,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 90
+      },
+      {
+        "run": 3,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 100
+      },
+      {
+        "run": 4,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 100
+      },
+      {
+        "run": 5,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 100
+      },
+      {
+        "run": 6,
+        "flagged": 1,
+        "false_positives": 0,
+        "pct_explained": 100
+      }
+    ],
+    "aliases": [
+      {
+        "from": "NORTHWIND SYS LLC",
+        "to": "Northwind Systems",
+        "learned_run": 1
+      }
+    ],
+    "thresholds": [
+      {
+        "account": "revenue_qoq",
+        "pct": 12,
+        "learned_run": 2
+      }
+    ],
+    "corrections": [],
+    "owners": [
+      {
+        "account": "revenue",
+        "owner": "CFO Desk",
+        "title": "Finance Team",
+        "learned_run": 2
+      }
+    ]
+  },
+  "run_id": 6,
+  "quarter": "2024Q3"
+}

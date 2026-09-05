@@ -132,7 +132,7 @@ async def run_pipeline():
     with open(memory_path, "w") as f:
         json.dump(memory, f, indent=2)
 
-    return {
+    payload = {
         "cfo_brief": final_narrative_clear,
         "variances": rehydrated_accounts,
         "net_variance": net_variance,
@@ -141,3 +141,8 @@ async def run_pipeline():
         "run_id": run_id,
         "quarter": f"2024Q{min(run_id, 3)}"
     }
+    
+    with open("run_data.json", "w") as f:
+        json.dump(payload, f, indent=2)
+
+    return payload

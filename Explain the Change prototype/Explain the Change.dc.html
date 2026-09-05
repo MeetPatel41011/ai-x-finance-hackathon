@@ -354,6 +354,30 @@
     </div>
   </sc-if>
 
+  <!-- ============ SCREEN 5 — CHATBOT ============ -->
+  <sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+    <div style="maxWidth: 800px; margin: 0 auto; padding: 28px 24px 64px">
+      <div style="fontSize: 22px; fontWeight: 600; letterSpacing: '-0.015em'; marginBottom: 20px">Chat with Data</div>
+      <div style="border: 1px solid #e2e2df; background: #fff; borderRadius: 4px; display: flex; flexDirection: column; height: 60vh">
+        <div style="flex: 1; overflowY: auto">
+          <sc-for list="{{ chatHistory }}" as="msg" hint-placeholder-count="2">
+            <div style="{{ msg.style }}">
+              <div style="{{ msg.nameStyle }}">{{ msg.role }}</div>
+              <div style="whiteSpace: pre-wrap; lineHeight: 1.5">{{ msg.content }}</div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ chatLoading }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 16px 20px; color: #6b7075; fontStyle: italic">AI is thinking...</div>
+          </sc-if>
+        </div>
+        <form onSubmit="{{ sendChat }}" style="borderTop: 1px solid #e2e2df; padding: 16px; display: flex; gap: 12px; background: #fbfbfa">
+          <input value="{{ chatInput }}" onChange="{{ setChatInput }}" placeholder="Ask a question about the quarter..." style="flex: 1; padding: 10px 14px; border: 1px solid #bfbfba; borderRadius: 4px; fontSize: 14px" />
+          <button type="submit" disabled="{{ chatLoading }}" style="background: #1a4fb4; color: #fff; border: none; padding: 0 20px; borderRadius: 4px; cursor: pointer; fontWeight: 500">Send</button>
+        </form>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- ============ SCREEN 3 — EVIDENCE DRAWER ============ -->
   <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
     <div style="position: fixed; inset: 0; zIndex: 60">
@@ -457,7 +481,10 @@ class Component extends DCLogic {
     running: false, stepIndex: 0,
     mode: "forecast",
     entity: DATA.run.entity,
-    files: { actuals: true, projections: true, context: true }
+    files: { actuals: true, projections: true, context: true },
+    chatHistory: [{ role: "assistant", content: "Hello! I am your AI FP&A Assistant. I have full access to the current run data, including variances, memory, and the CFO brief. What would you like to know?" }],
+    chatInput: "",
+    chatLoading: false
   };
 
   componentDidMount() {
@@ -603,6 +630,37 @@ class Component extends DCLogic {
     });
   }
 
+  sendChat(e) {
+    if (e) e.preventDefault();
+    const text = this.state.chatInput.trim();
+    if (!text || this.state.chatLoading) return;
+    
+    const messages = this.state.chatHistory.concat([{ role: "user", content: text }]);
+    this.setState({ chatHistory: messages, chatInput: "", chatLoading: true });
+    
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: messages })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.reply) {
+        this.setState(s => ({
+           chatHistory: s.chatHistory.concat([{ role: "assistant", content: res.reply }]),
+           chatLoading: false
+        }));
+      } else {
+        this.setState({ chatLoading: false });
+        console.error(res.error);
+      }
+    })
+    .catch(err => {
+      this.setState({ chatLoading: false });
+      console.error(err);
+    });
+  }
+
   renderVals() {
     const s = this.state, d = s.data, m = d.memory;
     const o = this.owner();
@@ -652,7 +710,8 @@ class Component extends DCLogic {
 
     const navDefs = [
       { key: "new", label: "New run" }, { key: "run", label: "Run view" },
-      { key: "memory", label: "Memory" }, { key: "report", label: "Report" }
+      { key: "memory", label: "Memory" }, { key: "report", label: "Report" },
+      { key: "chat", label: "Chatbot" }
     ];
     const navItems = navDefs.map(n => ({
       label: n.label, go: () => this.go(n.key),
@@ -758,7 +817,7 @@ class Component extends DCLogic {
     });
 
     return {
-      isNew: s.screen === "new", isRun: s.screen === "run", isMemory: s.screen === "memory", isReport: s.screen === "report",
+      isNew: s.screen === "new", isRun: s.screen === "run", isMemory: s.screen === "memory", isReport: s.screen === "report", isChat: s.screen === "chat",
       navItems: navItems,
       entity: s.entity, period: d.run.period, periodLabel: d.run.period,
       comparisonLabel: s.mode === "forecast" ? "vs forecast" : "vs prior period",
@@ -816,7 +875,23 @@ class Component extends DCLogic {
       driversOnlyStyle: chip(s.driversOnly),
       toggleDriversOnly: () => this.setState(st => ({ driversOnly: !st.driversOnly })),
       closeDrawer: () => this.setState({ drawer: null }),
-      openEvidenceAll: () => this.openDrawer("All transactions in the period", null)
+      closeDrawer: () => this.setState({ drawer: null }),
+      openEvidenceAll: () => this.openDrawer("All transactions in the period", null),
+      chatHistory: s.chatHistory.map(m => ({
+        role: m.role === "user" ? "You" : "AI",
+        content: m.content,
+        style: {
+          padding: "16px 20px",
+          background: m.role === "user" ? "#f4f7fd" : "#fff",
+          borderBottom: "1px solid " + LINE,
+          color: INK
+        },
+        nameStyle: { fontWeight: "600", marginBottom: "6px", color: m.role === "user" ? BLUE : INK }
+      })),
+      chatInput: s.chatInput,
+      chatLoading: s.chatLoading,
+      setChatInput: (e) => this.setState({ chatInput: e.target.value }),
+      sendChat: (e) => this.sendChat(e)
     };
   }
 }
